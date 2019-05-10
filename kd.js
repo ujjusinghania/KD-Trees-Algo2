@@ -13,20 +13,48 @@ function kdAlgo(pointSet, takeXMedian) {
     if (pointSet.length == 1) {
         return; 
     }
+    var medianValue; 
     if (takeXMedian) {
-        var xPoints; // Extract X Points
-        // xMedian = getMedian(xPoints);
-        // kdAlgo(upPointSet, !takeXMedian);
-        // kdAlgo(downPointSet, !takeXMedian);
+        var xPoints = getPoints(pointSet, 0); // Extract X Points
+        medianValue = getMedian(xPoints);
+        upPointSet = [];
+        downPointSet = [];
+        for (var point of pointSet) {
+            if (point[0] < medianValue) {
+                downPointSet.push(point);
+            }
+            else {
+                upPointSet.push(point);
+            }
+        }
+        kdAlgo(upPointSet, !takeXMedian);
+        kdAlgo(downPointSet, !takeXMedian);
     }
     else {
-        var yPoints; // Extract Y Points
-        // yMedian = getMedian(yPoints);
-        // kdAlgo(leftPointSet, !takeXMedian);
-        // kdAlgo(rightPointSet, !takeXMedian);
+        var yPoints = getPoints(pointSet, 1); // Extract Y Points
+        medianValue = getMedian(yPoints);
+        leftPointSet = [];
+        rightPointSet = [];
+        for (var point of pointSet) {
+            if (point[1] < medianValue) {
+                leftPointSet.push(point);
+            }
+            else {
+                rightPointSet.push(point);
+            }
+        }
+        kdAlgo(leftPointSet, !takeXMedian);
+        kdAlgo(rightPointSet, !takeXMedian);
     }
-    sendMedian() // Plot Median Line
+    sendMedian(medianValue); // Plot Median Line
+}
 
+function getPoints(pointSet, index) {
+    var points = [];
+    for (var point of pointSet) {
+        points.push(point[index]);
+    }
+    return points; 
 }
 
 function getMedian(points) {
