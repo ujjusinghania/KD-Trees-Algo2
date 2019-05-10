@@ -1,14 +1,3 @@
-class Point {
-    constructor(x, y) {
-        this.x = x; 
-        this.y = y;
-    }
-}
-
-var pointSet = [];
-
-console.log("Hello World");
-
 function kdAlgo(pointSet, takeXMedian) {
     if (pointSet.length == 1) {
         return; 
