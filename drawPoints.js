@@ -41,20 +41,26 @@ function kdDriver() {
       for (points of dataset) {
             pointSet[index++] = [points.x, points.y];
       }
-      kdAlgo(pointSet, 1, 1, h);
+      var verticalMedians = [0, w]
+      var horizontalMedians = [0, h]
+      kdAlgo(pointSet, 1, 1, h, verticalMedians, horizontalMedians);
 }
 // UP and LEFT is true, rest false
-function kdAlgo(pointSet, takeXMedian, isUpOrLeft, oldMedian) {
-      console.log("hello");
+function kdAlgo(pointSet, takeXMedian, isUpOrLeft, oldMedian, verticalMedians, horizontalMedians) {
+      console.log(verticalMedians);
       if (pointSet.length <= 1) {
             return;
       }
       var medianValue;
+
+      var verticalMediansCopy = verticalMedians.slice();
+      var horizontalMediansCopy = horizontalMedians.slice();
+      
       if (takeXMedian) {
             var xPoints = getPoints(pointSet, 0); // Extract X Points
             medianValue = getMedian(xPoints);
-            leftPointSet = [];
-            rightPointSet = [];
+            var leftPointSet = [];
+            var rightPointSet = [];
             for (var point of pointSet) {
                   if (point[0] < medianValue) {
                         leftPointSet.push(point);
@@ -63,17 +69,21 @@ function kdAlgo(pointSet, takeXMedian, isUpOrLeft, oldMedian) {
                         rightPointSet.push(point);
                   }
             }
-            drawMedian(medianValue, 1, isUpOrLeft, oldMedian); // Plot Median Line
-            console.log("left: " + leftPointSet + " right: " + rightPointSet);
+            drawMedian(medianValue, 1, isUpOrLeft, oldMedian, horizontalMedians); // Plot Median Line
+            verticalMediansCopy.push(medianValue);
+            verticalMediansCopy = verticalMediansCopy.sort(function (a, b) {
+                  return a - b; 
+            });
+            console.log("left: " + leftPointSet.length + " right: " + rightPointSet.length);
             var nextSplit = !takeXMedian;
-            kdAlgo(leftPointSet, nextSplit, 1, medianValue);
-            kdAlgo(rightPointSet, nextSplit, 0, medianValue);
+            kdAlgo(rightPointSet, nextSplit, 0, medianValue, verticalMediansCopy, horizontalMedians);
+            kdAlgo(leftPointSet, nextSplit, 1, medianValue, verticalMediansCopy, horizontalMedians);
       }
       else {
             var yPoints = getPoints(pointSet, 1); // Extract Y Points
             medianValue = getMedian(yPoints);
-            upPointSet = [];
-            downPointSet = [];
+            var upPointSet = [];
+            var downPointSet = [];
             for (var point of pointSet) {
                   if (point[1] < medianValue) {
                         upPointSet.push(point);
@@ -82,20 +92,20 @@ function kdAlgo(pointSet, takeXMedian, isUpOrLeft, oldMedian) {
                         downPointSet.push(point);
                   }
             }
-            drawMedian(medianValue, 0, isUpOrLeft, oldMedian); // Plot Median Line
+            drawMedian(medianValue, 0, isUpOrLeft, oldMedian, verticalMedians); // Plot Median Line
+            horizontalMediansCopy.push(medianValue);
+            horizontalMediansCopy = horizontalMediansCopy.sort(function (a, b) {
+                  return a - b; 
+            });
             console.log("up: " + upPointSet.length + " down: " + downPointSet.length);
             var nextSplit = !takeXMedian;
-            kdAlgo(upPointSet, nextSplit, 1, medianValue);
-            kdAlgo(downPointSet, nextSplit, 0, medianValue);
+            kdAlgo(upPointSet, nextSplit, 1, medianValue, verticalMedians, horizontalMediansCopy);
+            kdAlgo(downPointSet, nextSplit, 0, medianValue, verticalMedians, horizontalMediansCopy);
       }
       return; 
 }
 
-
-var verticalMedians = [0, w]
-var horizontalMedians = [0, h]
-
-function drawMedian(medianValue, isVertical, isUpOrLeft, oldMedian) {
+function drawMedian(medianValue, isVertical, isUpOrLeft, oldMedian, medianList) {
       var x1, x2, y1, y2;
       if (isVertical) {
             x1 = medianValue;
@@ -103,9 +113,15 @@ function drawMedian(medianValue, isVertical, isUpOrLeft, oldMedian) {
             y1 = oldMedian;
             y2 = h;
             if (isUpOrLeft) {
-                  y2 = 0;
+                  y2 = medianList.sort(function (a, b) {
+                        return b - a; 
+                  }).find(function(element) {
+                        return element < oldMedian;
+                      });
             } else {
-                  y2 = h;
+                  y2 = medianList.find(function(element) {
+                        return element > oldMedian;
+                      });
             }
       }
       else {
@@ -114,10 +130,16 @@ function drawMedian(medianValue, isVertical, isUpOrLeft, oldMedian) {
             x1 = oldMedian;
             x2 = w; 
             if (isUpOrLeft) {
-                  x2 = 0;
+                  x2 = medianList.sort(function (a, b) {
+                        return b - a; 
+                  }).find(function(element) {
+                        return element < oldMedian;
+                      });
             }
             else {
-                  x2 = w;
+                  x2 = medianList.find(function(element) {
+                        return element > oldMedian;
+                      });
             }
       }
       // console.log(x1, y1, x2, y2);
