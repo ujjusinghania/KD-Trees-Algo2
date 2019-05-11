@@ -21,6 +21,11 @@ svg.on("click", function () {
       console.log(pt);
 })
 
+drawBoundary(0, 0, 0, h);
+drawBoundary(0, 0, w, 0);
+drawBoundary(0, h, w, h);
+drawBoundary(w, 0, w, h);
+
 console.log("w = " + w + "; h = " + h);
 
 function over(d, i) {
@@ -142,7 +147,6 @@ function drawMedian(medianValue, isVertical, isUpOrLeft, oldMedian, medianList) 
                       });
             }
       }
-      // console.log(x1, y1, x2, y2);
       svg.append("line")
             .attr("x1", x1)
             .attr("y1", y1)
@@ -170,4 +174,14 @@ function getMedian(points) {
       var half = Math.floor(points.length / 2);
       // console.log("Median is: " + (points[half] + points[half - 1]) / 2);
       return (points[half] + points[half - 1]) / 2;
+}
+
+function drawBoundary(x1, y1, x2, y2) {
+      svg.append("line")
+            .attr("x1", x1)
+            .attr("y1", y1)
+            .attr("x2", x2)
+            .attr("y2", y2)
+            .attr("stroke-width", 2)
+            .attr("stroke", "black");
 }
