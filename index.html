@@ -1,13 +1,48 @@
 <!DOCTYPE html>
 <html>
-  <head>
+
+<head>
   <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
   <script type="text/javascript" src="drawPointsBuggy.js"></script>
-  </head>
-  <body>
-    <script src="drawPointsBuggy.js"></script>
-    <br></br>
-    <button onclick="kdDriver()">Create KD Rectangles</button>
-    <button onclick="randomizePoints()">Randomize Points</button>
-  </body>
+  <link type="text/css" rel="stylesheet" href="css/bulma.css" media="screen,projection" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+</head>
+
+<body>
+  <nav class="navbar has-shadow" role="navigation" aria-label="main navigation">
+    <div class="navbar-brand">
+      <a class="navbar-item">
+        <strong>KD Trees</strong>
+      </a>
+
+      <a role="button" class="navbar-burger burger" aria-label="menu" aria-expanded="false"
+        data-target="navbarBasicExample">
+        <span aria-hidden="true"></span>
+        <span aria-hidden="true"></span>
+        <span aria-hidden="true"></span>
+      </a>
+    </div>
+
+    <div id="navbarBasicExample" class="navbar-menu">
+      <div class="navbar-start">
+        <a class="navbar-item">
+          Home
+        </a>
+
+        <a class="navbar-item">
+          Demo
+        </a>
+      </div>
+    </div>
+  </nav>
+  <br /><br />
+  <script src="drawPointsBuggy.js"></script>
+  <br></br>
+  <div align="center">
+  <a class="button" onclick="kdDriver()">Create KD Rectangles</a>
+  <a class="button" onclick="randomizePoints()">Randomize Points</a>
+  <a class="button" onclick="clearSVG()">Clear Demo</a>
+</div> 
+</body>
+
 </html>

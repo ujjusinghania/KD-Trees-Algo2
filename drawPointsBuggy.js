@@ -1,5 +1,5 @@
-var w = 800;
-var h = 500;
+var w = window.innerWidth;
+var h = window.innerHeight/1.5;
 var radius = 5;
 var svg = d3.select("body").append("svg").attr({ width: w, height: h });
 var dataset = [];
