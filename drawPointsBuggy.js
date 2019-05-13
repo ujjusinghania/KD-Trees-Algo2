@@ -105,7 +105,6 @@ function dragEnd() {
             exists = true;
             d3.event.sourceEvent.preventDefault();
             selectionRect.focus();
-            dataset.pop();
             if (dataset.length != 0) { ptnum -= 1; }
       }
 }
@@ -142,6 +141,8 @@ function out(d, i) {
 var setRectangles = [];
 
 function kdDriver() {
+      dataset.pop();
+      console.log(dataset);
       setRectangles = []
       var pointSet = new Array(dataset.length);
       var index = 0;
@@ -156,6 +157,22 @@ function kdDriver() {
       kdAlgo(pointSet, 1, 1, h, verticalMedians, horizontalMedians);
       console.log(setRectangles);
       drawRectangles();
+      var answerLabel = document.getElementById("answerText");
+      answerLabel.innerHTML = "Number of points inside the rectangle are: " + countPoints();
+}
+
+function countPoints() {
+      var selectionRectangle = selectionRect.getCurrentAttributes();
+      console.log(selectionRectangle);
+      var count = 0; 
+      for (point of dataset) {
+            if (point.x <= selectionRectangle.x2 && point.x >= selectionRectangle.x1) {
+                  if (point.y <= selectionRectangle.y2 && point.y >= selectionRectangle.y1) {
+                        count++; 
+                  }
+            }
+      }
+      return count; 
 }
 
 function updateValue(x, y, boundaryType, boundaryVal) {
@@ -182,7 +199,7 @@ function kdAlgo(pointSet, takeXMedian, isUpOrLeft, oldMedian, verticalMedians, h
             medianValue = getMedian(xPoints);
             var leftPointSet = [];
             var rightPointSet = [];
-            if (pointSet.length == 2 && pointSet[0][0] == medianValue && point[1][0] == medianValue) {
+            if (pointSet.length == 2 && pointSet[0][0] == medianValue && pointSet[1][0] == medianValue) {
                   leftPointSet.push(point[0]);
                   updateValue(point[0][0], point[0][1], "right", medianValue);
                   rightPointSet.push(point[1]);
@@ -214,7 +231,7 @@ function kdAlgo(pointSet, takeXMedian, isUpOrLeft, oldMedian, verticalMedians, h
             medianValue = getMedian(yPoints);
             var upPointSet = [];
             var downPointSet = [];
-            if (pointSet.length == 2 && pointSet[0][1] == medianValue && point[1][1] == medianValue) {
+            if (pointSet.length == 2 && pointSet[0][1] == medianValue && pointSet[1][1] == medianValue) {
                   upPointSet.push(point[0]);
                   updateValue(point[0][0], point[0][1], "right", medianValue);
                   downPointSet.push(point[1]);
