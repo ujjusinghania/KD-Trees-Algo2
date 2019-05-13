@@ -19,7 +19,7 @@ svg.on("click", function () {
             .attr(pts)
             .on("mouseover", over)
             .on("mouseout", out);
-      console.log(pt);
+      // console.log(pt);
 })
 
 var exists = false;
@@ -129,13 +129,6 @@ function over(d, i) {
 
 function out(d, i) {
       d3.select(this).attr({ fill: "black", r: radius });
-      svg.append("text").attr({
-            x: function () { return xm(d.x) - 3; },
-            y: function () { return ym(d.y) - 7; }
-      })
-            .text(function () {
-                  return [ptnum];
-            });
 }
 
 var setRectangles = [];
@@ -163,7 +156,6 @@ function kdDriver() {
 
 function countPoints() {
       var selectionRectangle = selectionRect.getCurrentAttributes();
-      console.log(selectionRectangle);
       var count = 0; 
       for (point of dataset) {
             if (point.x <= selectionRectangle.x2 && point.x >= selectionRectangle.x1) {
@@ -185,7 +177,7 @@ function updateValue(x, y, boundaryType, boundaryVal) {
 
 // UP and LEFT is true, rest false
 function kdAlgo(pointSet, takeXMedian, isUpOrLeft, oldMedian, verticalMedians, horizontalMedians) {
-      console.log(verticalMedians);
+      // console.log(verticalMedians);
       if (pointSet.length <= 1) {
             return;
       }
@@ -221,7 +213,7 @@ function kdAlgo(pointSet, takeXMedian, isUpOrLeft, oldMedian, verticalMedians, h
             verticalMediansCopy = verticalMediansCopy.sort(function (a, b) {
                   return a - b;
             });
-            console.log("left: " + leftPointSet.length + " right: " + rightPointSet.length);
+            // console.log("left: " + leftPointSet.length + " right: " + rightPointSet.length);
             var nextSplit = !takeXMedian;
             kdAlgo(rightPointSet, nextSplit, 0, medianValue, verticalMediansCopy, horizontalMedians);
             kdAlgo(leftPointSet, nextSplit, 1, medianValue, verticalMediansCopy, horizontalMedians);
@@ -253,7 +245,7 @@ function kdAlgo(pointSet, takeXMedian, isUpOrLeft, oldMedian, verticalMedians, h
             horizontalMediansCopy = horizontalMediansCopy.sort(function (a, b) {
                   return a - b;
             });
-            console.log("up: " + upPointSet.length + " down: " + downPointSet.length);
+            // console.log("up: " + upPointSet.length + " down: " + downPointSet.length);
             var nextSplit = !takeXMedian;
             kdAlgo(upPointSet, nextSplit, 1, medianValue, verticalMedians, horizontalMediansCopy);
             kdAlgo(downPointSet, nextSplit, 0, medianValue, verticalMedians, horizontalMediansCopy);
