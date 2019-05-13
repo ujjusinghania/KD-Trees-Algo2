@@ -1,16 +1,17 @@
 var w = window.innerWidth;
-var h = window.innerHeight;
+var h = window.innerHeight/1.5;
 var radius = 5;
 var svg = d3.select("body").append("svg").attr({ width: w, height: h });
 var dataset = [];
 var xm = d3.scale.linear().domain([0, w]).range([0, w]);
 var ym = d3.scale.linear().domain([0, h]).range([0, h]);
 var pts = { cx: function (d) { return xm(d.x); }, cy: function (d) { return ym(d.y); }, r: radius };
-
+var ptnum = 0;
 svg.on("click", function () {
       var xy = d3.mouse(this);
       var pt = { x: Math.round(xm.invert(xy[0])), y: Math.round(ym.invert(xy[1])) };
       dataset.push(pt);
+      ptnum += 1;
       svg.selectAll("circle")
             .data(dataset)
             .enter()
@@ -20,6 +21,101 @@ svg.on("click", function () {
             .on("mouseout", out);
       console.log(pt);
 })
+
+var exists = false;
+var selectionRect = {
+      element: null,
+      currentY: 0,
+      currentX: 0,
+      originX: 0,
+      originY: 0,
+      setElement: function (ele) {
+            this.element = ele;
+      },
+      getNewAttributes: function () {
+            var x = this.currentX < this.originX ? this.currentX : this.originX;
+            var y = this.currentY < this.originY ? this.currentY : this.originY;
+            var width = Math.abs(this.currentX - this.originX);
+            var height = Math.abs(this.currentY - this.originY);
+            return {
+                  x: x,
+                  y: y,
+                  width: width,
+                  height: height
+            };
+      },
+      getCurrentAttributes: function () {
+            var x = +this.element.attr("x");
+            var y = +this.element.attr("y");
+            var width = +this.element.attr("width");
+            var height = +this.element.attr("height");
+            return {
+                  x1: x,
+                  y1: y,
+                  x2: x + width,
+                  y2: y + height,
+                  wid: width,
+                  hei: height
+            };
+      },
+      init: function (newX, newY) {
+            var rectElement = svg2.append("rect").attr({
+                  x: 0,
+                  y: 0,
+                  width: 0,
+                  height: 0
+            })
+            this.setElement(rectElement);
+            this.originX = newX;
+            this.originY = newY;
+            this.update(newX, newY);
+      },
+      update: function (newX, newY) {
+            this.currentX = newX;
+            this.currentY = newY;
+            this.element.attr(this.getNewAttributes());
+      },
+      focus: function () {
+            this.element
+                  .style("opacity", "0.5")
+                  .style("fill", "darkpurple")
+                  .style("stroke", "black")
+                  .style("stroke-width", "2.5");
+      },
+};
+
+var svg2 = d3.select("svg");
+function dragStart() {
+      var p = d3.mouse(this);
+      selectionRect.init(p[0], p[1]);
+      selectionRect.focus();
+}
+
+function dragMove() {
+      if (!exists) {
+            var p = d3.mouse(this);
+            selectionRect.update(p[0], p[1]);
+            selectionRect.focus();
+      }
+}
+
+function dragEnd() {
+      var finalAttributes = selectionRect.getCurrentAttributes();
+      if (finalAttributes.x2 - finalAttributes.x1 > 1 && finalAttributes.y2 - finalAttributes.y1 > 1) {
+            exists = true;
+            d3.event.sourceEvent.preventDefault();
+            selectionRect.focus();
+            if (dataset.length != 0) { ptnum -= 1; }
+      }
+}
+
+
+var dragBehavior = d3.behavior.drag()
+      .on("drag", dragMove)
+      .on("dragstart", dragStart)
+      .on("dragend", dragEnd);
+svg2.call(dragBehavior);
+
 
 // Drawing boundary around the frame
 drawBoundary(0, 0, 0, h);
@@ -33,11 +129,20 @@ function over(d, i) {
 
 function out(d, i) {
       d3.select(this).attr({ fill: "black", r: radius });
+      svg.append("text").attr({
+            x: function () { return xm(d.x) - 3; },
+            y: function () { return ym(d.y) - 7; }
+      })
+            .text(function () {
+                  return [ptnum];
+            });
 }
 
 var setRectangles = [];
 
 function kdDriver() {
+      dataset.pop();
+      console.log(dataset);
       setRectangles = []
       var pointSet = new Array(dataset.length);
       var index = 0;
@@ -52,6 +157,22 @@ function kdDriver() {
       kdAlgo(pointSet, 1, 1, h, verticalMedians, horizontalMedians);
       console.log(setRectangles);
       drawRectangles();
+      var answerLabel = document.getElementById("answerText");
+      answerLabel.innerHTML = "Number of points inside the rectangle are: " + countPoints();
+}
+
+function countPoints() {
+      var selectionRectangle = selectionRect.getCurrentAttributes();
+      console.log(selectionRectangle);
+      var count = 0; 
+      for (point of dataset) {
+            if (point.x <= selectionRectangle.x2 && point.x >= selectionRectangle.x1) {
+                  if (point.y <= selectionRectangle.y2 && point.y >= selectionRectangle.y1) {
+                        count++; 
+                  }
+            }
+      }
+      return count; 
 }
 
 function updateValue(x, y, boundaryType, boundaryVal) {
@@ -78,14 +199,22 @@ function kdAlgo(pointSet, takeXMedian, isUpOrLeft, oldMedian, verticalMedians, h
             medianValue = getMedian(xPoints);
             var leftPointSet = [];
             var rightPointSet = [];
-            for (var point of pointSet) {
-                  if (point[0] < medianValue) {
-                        leftPointSet.push(point);
-                        updateValue(point[0], point[1], "right", medianValue);
-                  }
-                  else {
-                        rightPointSet.push(point);
-                        updateValue(point[0], point[1], "left", medianValue);
+            if (pointSet.length == 2 && pointSet[0][0] == medianValue && pointSet[1][0] == medianValue) {
+                  leftPointSet.push(pointSet[0]);
+                  updateValue(pointSet[0][0], pointSet[0][1], "right", medianValue);
+                  rightPointSet.push(pointSet[1]);
+                  updateValue(pointSet[1][0], pointSet[1][1], "left", medianValue);
+            }
+            else {
+                  for (var point of pointSet) {
+                        if (point[0] < medianValue) {
+                              leftPointSet.push(point);
+                              updateValue(point[0], point[1], "right", medianValue);
+                        }
+                        else {
+                              rightPointSet.push(point);
+                              updateValue(point[0], point[1], "left", medianValue);
+                        }
                   }
             }
             verticalMediansCopy.push(medianValue);
@@ -102,14 +231,22 @@ function kdAlgo(pointSet, takeXMedian, isUpOrLeft, oldMedian, verticalMedians, h
             medianValue = getMedian(yPoints);
             var upPointSet = [];
             var downPointSet = [];
-            for (var point of pointSet) {
-                  if (point[1] < medianValue) {
-                        upPointSet.push(point);
-                        updateValue(point[0], point[1], "down", medianValue);
-                  }
-                  else {
-                        downPointSet.push(point);
-                        updateValue(point[0], point[1], "up", medianValue);
+            if (pointSet.length == 2 && pointSet[0][1] == medianValue && pointSet[1][1] == medianValue) {
+                  upPointSet.push(pointSet[0]);
+                  updateValue(pointSet[0][0], pointSet[0][1], "right", medianValue);
+                  downPointSet.push(pointSet[1]);
+                  updateValue(pointSet[1][0], pointSet[1][1], "left", medianValue);
+            }
+            else {
+                  for (var point of pointSet) {
+                        if (point[1] < medianValue) {
+                              upPointSet.push(point);
+                              updateValue(point[0], point[1], "down", medianValue);
+                        }
+                        else {
+                              downPointSet.push(point);
+                              updateValue(point[0], point[1], "up", medianValue);
+                        }
                   }
             }
             horizontalMediansCopy.push(medianValue);
@@ -126,16 +263,51 @@ function kdAlgo(pointSet, takeXMedian, isUpOrLeft, oldMedian, verticalMedians, h
 
 function drawRectangles() {
       console.log("Drawing rectangles...");
+      butes = selectionRect.getCurrentAttributes();
       for (rectangle of setRectangles) {
-            svg.append("rect")
-                  .attr("x", rectangle.left)
-                  .attr("y", rectangle.up)
-                  .attr("width", rectangle.right - rectangle.left)
-                  .attr("height", rectangle.down - rectangle.up)
-                  .attr("fill-opacity", 0.1)
-                  .attr("fill", "black")
-                  .attr("stroke-width", 2)
-                  .attr("stroke", "black");;
+            var one = rectangle.left;
+            var two = rectangle.up;
+            var three = rectangle.right - rectangle.left;
+            var four = rectangle.down - rectangle.up;
+            if (one + three < butes.x1 + butes.wid
+                  && one > butes.x1
+                  && two > butes.y1
+                  && two + four < butes.y1 + butes.hei) {
+                  svg.append("rect")
+                        .attr("x", one)
+                        .attr("y", two)
+                        .attr("width", three)
+                        .attr("height", four)
+                        .attr("fill-opacity", 0.3)
+                        .attr("fill", "green")
+                        .attr("stroke-width", 2)
+                        .attr("stroke", "black");
+            }
+            else if (one < (butes.x1 + butes.wid)
+                  && one + three > butes.x1
+                  && two < (butes.y1 + butes.hei)
+                  && two + four > butes.y1) {
+                  svg.append("rect")
+                        .attr("x", one)
+                        .attr("y", two)
+                        .attr("width", three)
+                        .attr("height", four)
+                        .attr("fill-opacity", 0.3)
+                        .attr("fill", "red")
+                        .attr("stroke-width", 2)
+                        .attr("stroke", "black");
+            }
+            else {
+                  svg.append("rect")
+                        .attr("x", one)
+                        .attr("y", two)
+                        .attr("width", three)
+                        .attr("height", four)
+                        .attr("fill-opacity", 0.3)
+                        .attr("fill", "blue")
+                        .attr("stroke-width", 2)
+                        .attr("stroke", "black");
+            }
       }
 }
 
@@ -170,5 +342,16 @@ function drawBoundary(x1, y1, x2, y2) {
 }
 
 function randomizePoints() {
-
+      for (var i = 0; i <= 40; i++) {
+            var pt = { x: Math.floor(Math.random() * Math.floor(w)), y: Math.floor(Math.random() * Math.floor(h)) };
+            dataset.push(pt);
+            ptnum += 1;
+      }
+      svg.selectAll("circle")
+            .data(dataset)
+            .enter()
+            .append("circle")
+            .attr(pts)
+            .on("mouseover", over)
+            .on("mouseout", out);
 }
