@@ -12,20 +12,20 @@
 <p>Trivially use an augmented BST, storing the size of each subtree at each node.</p>
 
 <h3>2D range counting:</h3>
-<p>kd-trees: divide the data points alternatingly by median x-coordinates and y-coordinates until each rectangle has only one (or none) point enclosed. When dividing by x-coordinates, create a vertical line. When dividing by y-coordinates, create a horizontal line.</p>
-<p>Construction time: Each rectangle can be represented as a subtree in a tree. Per level, we find disjoint medians costing O(n) time. There are n levels, giving us a runtime of O(n log n).</p>
+  <p><b>kd-trees:</b> divide the data points alternatingly by median x-coordinates and y-coordinates until each rectangle has only one (or none) point enclosed. When dividing by x-coordinates, create a vertical line. When dividing by y-coordinates, create a horizontal line.</p>
+  <p><b>Construction time:</b> Each rectangle can be represented as a subtree in a tree. Per level, we find disjoint medians costing O(n) time. There are n levels, giving us a runtime of <b>O(n log n).</b></p>
 
 <p>For a range count query, we can check every rectangle to see if the data point is inside the query box. We can form three types of rectangles: ones that fully inside the range query, ones that are fully outside of the range query and ones that are crossing the range query.</p>
 
 <p>The only rectangles that will require a considerable amount of work are the ones that are crossing the range query. If the rectangles are outside, we could disregard those subtrees and not recurse because they’re out of range. If the rectangles are fully inside, we can count its subtree size and not recurse because they’re fully in range.</p>
 
-<p>To get a bound on the number of crossing rectangles, we can run a horizontal stab through the data points. We can begin dividing our data horizontally, allowing us to disregard one horizontal subtree. Next, we divide vertically, requiring us to recurse on both vertical subtrees formed. We continue doing so, proving that for every node we are required to visit, we will only visit two of its four grandchildren. This proves that the maximum number of crossing rectangles we can ever have is O(√n).</p>
+<p>To get a bound on the number of crossing rectangles, we can run a horizontal stab through the data points. We can begin dividing our data horizontally, allowing us to disregard one horizontal subtree. Next, we divide vertically, requiring us to recurse on both vertical subtrees formed. We continue doing so, proving that for every node we are required to visit, we will only visit two of its four grandchildren. This proves that the maximum number of crossing rectangles we can ever have is <b>O(√n).</b></p>
 
 <p>We can use this to form a recurrence for the work we will have to do to solve our range query:</p>
 
-<p>S(n) ≤ S(n/4) + O(1)</p>
+  <p><b>S(n) ≤ S(n/4) + O(1)</b></p>
 
-<p>We can use the master method to solve this recurrence, showing that the leaf level dominates, and we can solve a 2d range counting problem in O(√n) time.</p>
+<p>We can use the master method to solve this recurrence, showing that the leaf level dominates, and we can solve a 2d range counting problem in <b>O(√n)</br> time.</p>
 
 </body>
 </html>
