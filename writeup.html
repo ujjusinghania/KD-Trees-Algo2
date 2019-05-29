@@ -60,15 +60,15 @@
     <br/>
 
   <p>The only rectangles that will require a considerable amount of work are the ones that are crossing the range query.
-    If the rectangles are outside, we could disregard those subtrees and not recurse because they’re out of range. If
-    the rectangles are fully inside, we can count its subtree size and not recurse because they’re fully in range.</p>
+    If the rectangles are outside, we could disregard those subtrees and not recurse because they're out of range. If
+    the rectangles are fully inside, we can count its subtree size and not recurse because they're fully in range.</p>
     <br/>
 
   <p>To get a bound on the number of crossing rectangles, we can run a horizontal stab through the data points. We can
     begin dividing our data horizontally, allowing us to disregard one horizontal subtree. Next, we divide vertically,
     requiring us to recurse on both vertical subtrees formed. We continue doing so, proving that for every node we are
     required to visit, we will only visit two of its four grandchildren. This proves that the maximum number of crossing
-    rectangles we can ever have is <b>O(√n).</b></p>
+    rectangles we can ever have is <b>O(sqrt(n)).</b></p>
     <br/>
 
   <p>We can use this to form a recurrence for the work we will have to do to solve our range query:</p>

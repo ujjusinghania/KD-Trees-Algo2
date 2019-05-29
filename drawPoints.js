@@ -178,6 +178,32 @@ function updateValue(x, y, boundaryType, boundaryVal) {
 // UP and LEFT is true, rest false
 function kdAlgo(pointSet, takeXMedian, isUpOrLeft, oldMedian, verticalMedians, horizontalMedians) {
       // console.log(verticalMedians);
+      if (!takeXMedian) { // If result of X Median
+            if (isUpOrLeft) {
+                  if (oldMedian < selectionRect.getCurrentAttributes().x1) {
+                        return; 
+                  }
+            }
+            else {
+                  if (oldMedian > selectionRect.getCurrentAttributes().x2) {
+                        return; 
+                  }
+            }
+      }
+      else {
+            if (isUpOrLeft) {
+                  if (oldMedian < selectionRect.getCurrentAttributes().y1) {
+                        return; 
+                  }
+            }
+            else {
+                  if (oldMedian > selectionRect.getCurrentAttributes().y2) {
+                        return; 
+                  }
+                  
+            }
+      }
+
       if (pointSet.length <= 1) {
             return;
       }
@@ -256,6 +282,7 @@ function kdAlgo(pointSet, takeXMedian, isUpOrLeft, oldMedian, verticalMedians, h
 function drawRectangles() {
       console.log("Drawing rectangles...");
       butes = selectionRect.getCurrentAttributes();
+      console.log(butes);
       for (rectangle of setRectangles) {
             var one = rectangle.left;
             var two = rectangle.up;
@@ -295,8 +322,7 @@ function drawRectangles() {
                         .attr("y", two)
                         .attr("width", three)
                         .attr("height", four)
-                        .attr("fill-opacity", 0.3)
-                        .attr("fill", "blue")
+                        .attr("fill-opacity", 0)
                         .attr("stroke-width", 2)
                         .attr("stroke", "black");
             }
@@ -334,7 +360,7 @@ function drawBoundary(x1, y1, x2, y2) {
 }
 
 function randomizePoints() {
-      for (var i = 0; i <= 40; i++) {
+      for (var i = 0; i < 42; i++) {
             var pt = { x: Math.floor(Math.random() * Math.floor(w)), y: Math.floor(Math.random() * Math.floor(h)) };
             dataset.push(pt);
             ptnum += 1;
