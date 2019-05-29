@@ -178,6 +178,8 @@ function updateValue(x, y, boundaryType, boundaryVal) {
 // UP and LEFT is true, rest false
 function kdAlgo(pointSet, takeXMedian, isUpOrLeft, oldMedian, verticalMedians, horizontalMedians) {
       // console.log(verticalMedians);
+
+      // If statements to not draw rectangles for points outside query box
       if (!takeXMedian) { // If result of X Median
             if (isUpOrLeft) {
                   if (oldMedian < selectionRect.getCurrentAttributes().x1) {
