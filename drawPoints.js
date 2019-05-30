@@ -1,5 +1,5 @@
 var w = window.innerWidth;
-var h = window.innerHeight/1.5;
+var h = window.innerHeight / 1.5;
 var radius = 5;
 var svg = d3.select("body").append("svg").attr({ width: w, height: h });
 var dataset = [];
@@ -147,66 +147,69 @@ function kdDriver() {
       var verticalMedians = [0, w]
       var horizontalMedians = [0, h]
       console.log(setRectangles);
-      kdAlgo(pointSet, 1, 1, h, verticalMedians, horizontalMedians);
+      kdAlgo(pointSet, 1, 1, h, verticalMedians, horizontalMedians, 0, w, 0, h);
       console.log(setRectangles);
-      drawRectangles();
       var answerLabel = document.getElementById("answerText");
       answerLabel.innerHTML = "Number of points inside the rectangle are: " + countPoints();
 }
 
 function countPoints() {
       var selectionRectangle = selectionRect.getCurrentAttributes();
-      var count = 0; 
+      var count = 0;
       for (point of dataset) {
             if (point.x <= selectionRectangle.x2 && point.x >= selectionRectangle.x1) {
                   if (point.y <= selectionRectangle.y2 && point.y >= selectionRectangle.y1) {
-                        count++; 
+                        count++;
                   }
             }
       }
-      return count; 
+      return count;
 }
 
-function updateValue(x, y, boundaryType, boundaryVal) {
-      for (point of setRectangles) {
-            if (point.x == x && point.y == y) {
-                  point[boundaryType] = boundaryVal;
-            }
-      }
-}
+
 
 // UP and LEFT is true, rest false
-function kdAlgo(pointSet, takeXMedian, isUpOrLeft, oldMedian, verticalMedians, horizontalMedians) {
+function kdAlgo(pointSet, takeXMedian, isUpOrLeft, oldMedian, verticalMedians, horizontalMedians, left, right, up, down) {
       // console.log(verticalMedians);
-
+      var selectionRectAttr = selectionRect.getCurrentAttributes(); 
+      var val = false;
       // If statements to not draw rectangles for points outside query box
       if (!takeXMedian) { // If result of X Median
             if (isUpOrLeft) {
-                  if (oldMedian < selectionRect.getCurrentAttributes().x1) {
-                        return; 
+                  if (oldMedian < selectionRectAttr.x1) { // left
+                        val = true;
                   }
             }
             else {
-                  if (oldMedian > selectionRect.getCurrentAttributes().x2) {
-                        return; 
+                  if (oldMedian > selectionRectAttr.x2) { // right
+                        val = true;
                   }
             }
       }
       else {
             if (isUpOrLeft) {
-                  if (oldMedian < selectionRect.getCurrentAttributes().y1) {
-                        return; 
+                  if (oldMedian < selectionRectAttr.y1) { // up
+                        val = true;
                   }
             }
             else {
-                  if (oldMedian > selectionRect.getCurrentAttributes().y2) {
-                        return; 
+                  if (oldMedian > selectionRectAttr.y2) { // down
+                        val = true;
                   }
-                  
             }
       }
 
+      if (left > selectionRectAttr.x1 && up > selectionRectAttr.y1 && right < selectionRectAttr.x2 && down < selectionRectAttr.y2) {
+            val = true; 
+      }
+
+      if (val) {
+            drawRectangles(left, right, up, down);
+            return;
+      }
+
       if (pointSet.length <= 1) {
+            drawRectangles(left, right, up, down);
             return;
       }
       var medianValue;
@@ -221,19 +224,15 @@ function kdAlgo(pointSet, takeXMedian, isUpOrLeft, oldMedian, verticalMedians, h
             var rightPointSet = [];
             if (pointSet.length == 2 && pointSet[0][0] == medianValue && pointSet[1][0] == medianValue) {
                   leftPointSet.push(pointSet[0]);
-                  updateValue(pointSet[0][0], pointSet[0][1], "right", medianValue);
                   rightPointSet.push(pointSet[1]);
-                  updateValue(pointSet[1][0], pointSet[1][1], "left", medianValue);
             }
             else {
                   for (var point of pointSet) {
                         if (point[0] < medianValue) {
                               leftPointSet.push(point);
-                              updateValue(point[0], point[1], "right", medianValue);
                         }
                         else {
                               rightPointSet.push(point);
-                              updateValue(point[0], point[1], "left", medianValue);
                         }
                   }
             }
@@ -243,8 +242,8 @@ function kdAlgo(pointSet, takeXMedian, isUpOrLeft, oldMedian, verticalMedians, h
             });
             // console.log("left: " + leftPointSet.length + " right: " + rightPointSet.length);
             var nextSplit = !takeXMedian;
-            kdAlgo(rightPointSet, nextSplit, 0, medianValue, verticalMediansCopy, horizontalMedians);
-            kdAlgo(leftPointSet, nextSplit, 1, medianValue, verticalMediansCopy, horizontalMedians);
+            kdAlgo(rightPointSet, nextSplit, 0, medianValue, verticalMediansCopy, horizontalMedians, medianValue, right, up, down);
+            kdAlgo(leftPointSet, nextSplit, 1, medianValue, verticalMediansCopy, horizontalMedians, left, medianValue, up, down);
       }
       else {
             var yPoints = getPoints(pointSet, 1); // Extract Y Points
@@ -253,19 +252,15 @@ function kdAlgo(pointSet, takeXMedian, isUpOrLeft, oldMedian, verticalMedians, h
             var downPointSet = [];
             if (pointSet.length == 2 && pointSet[0][1] == medianValue && pointSet[1][1] == medianValue) {
                   upPointSet.push(pointSet[0]);
-                  updateValue(pointSet[0][0], pointSet[0][1], "right", medianValue);
                   downPointSet.push(pointSet[1]);
-                  updateValue(pointSet[1][0], pointSet[1][1], "left", medianValue);
             }
             else {
                   for (var point of pointSet) {
                         if (point[1] < medianValue) {
                               upPointSet.push(point);
-                              updateValue(point[0], point[1], "down", medianValue);
                         }
                         else {
                               downPointSet.push(point);
-                              updateValue(point[0], point[1], "up", medianValue);
                         }
                   }
             }
@@ -275,59 +270,58 @@ function kdAlgo(pointSet, takeXMedian, isUpOrLeft, oldMedian, verticalMedians, h
             });
             // console.log("up: " + upPointSet.length + " down: " + downPointSet.length);
             var nextSplit = !takeXMedian;
-            kdAlgo(upPointSet, nextSplit, 1, medianValue, verticalMedians, horizontalMediansCopy);
-            kdAlgo(downPointSet, nextSplit, 0, medianValue, verticalMedians, horizontalMediansCopy);
+            kdAlgo(upPointSet, nextSplit, 1, medianValue, verticalMedians, horizontalMediansCopy, left, right, up, medianValue);
+            kdAlgo(downPointSet, nextSplit, 0, medianValue, verticalMedians, horizontalMediansCopy, left, right, medianValue, down);
       }
       return;
 }
 
-function drawRectangles() {
+function drawRectangles(left, right, up, down) {
       console.log("Drawing rectangles...");
       butes = selectionRect.getCurrentAttributes();
       console.log(butes);
-      for (rectangle of setRectangles) {
-            var one = rectangle.left;
-            var two = rectangle.up;
-            var three = rectangle.right - rectangle.left;
-            var four = rectangle.down - rectangle.up;
-            if (one + three < butes.x1 + butes.wid
-                  && one > butes.x1
-                  && two > butes.y1
-                  && two + four < butes.y1 + butes.hei) {
-                  svg.append("rect")
-                        .attr("x", one)
-                        .attr("y", two)
-                        .attr("width", three)
-                        .attr("height", four)
-                        .attr("fill-opacity", 0.3)
-                        .attr("fill", "green")
-                        .attr("stroke-width", 2)
-                        .attr("stroke", "black");
-            }
-            else if (one < (butes.x1 + butes.wid)
-                  && one + three > butes.x1
-                  && two < (butes.y1 + butes.hei)
-                  && two + four > butes.y1) {
-                  svg.append("rect")
-                        .attr("x", one)
-                        .attr("y", two)
-                        .attr("width", three)
-                        .attr("height", four)
-                        .attr("fill-opacity", 0.3)
-                        .attr("fill", "red")
-                        .attr("stroke-width", 2)
-                        .attr("stroke", "black");
-            }
-            else {
-                  svg.append("rect")
-                        .attr("x", one)
-                        .attr("y", two)
-                        .attr("width", three)
-                        .attr("height", four)
-                        .attr("fill-opacity", 0)
-                        .attr("stroke-width", 2)
-                        .attr("stroke", "black");
-            }
+      var one = left;
+      var two = up;
+      var three = right - left;
+      var four = down - up;
+      if (one + three < butes.x1 + butes.wid
+            && one > butes.x1
+            && two > butes.y1
+            && two + four < butes.y1 + butes.hei) {
+            svg.append("rect")
+                  .attr("x", one)
+                  .attr("y", two)
+                  .attr("width", three)
+                  .attr("height", four)
+                  .attr("fill-opacity", 0.3)
+                  .attr("fill", "green")
+                  .attr("stroke-width", 2)
+                  .attr("stroke", "black");
+      }
+      else if (one < (butes.x1 + butes.wid)
+            && one + three > butes.x1
+            && two < (butes.y1 + butes.hei)
+            && two + four > butes.y1) {
+            svg.append("rect")
+                  .attr("x", one)
+                  .attr("y", two)
+                  .attr("width", three)
+                  .attr("height", four)
+                  .attr("fill-opacity", 0.3)
+                  .attr("fill", "red")
+                  .attr("stroke-width", 2)
+                  .attr("stroke", "black");
+      }
+      else {
+            svg.append("rect")
+                  .attr("x", one)
+                  .attr("y", two)
+                  .attr("width", three)
+                  .attr("height", four)
+                  .attr("fill-opacity", 0.3)
+                  .attr("fill", "blue")
+                  .attr("stroke-width", 2)
+                  .attr("stroke", "black");
       }
 }
 
