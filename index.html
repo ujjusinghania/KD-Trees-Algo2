@@ -11,9 +11,6 @@
 <body>
   <nav class="navbar has-shadow" role="navigation" aria-label="main navigation">
     <div class="navbar-brand">
-      <a class="navbar-item">
-        <strong>KD Trees</strong>
-      </a>
 
       <a role="button" class="navbar-burger burger" aria-label="menu" aria-expanded="false"
         data-target="navbarBasicExample">
@@ -66,9 +63,9 @@
   <script id="hello" src="drawPoints.js"></script>
   <br></br>
   <div align="center">
-    <a class="button is-light" onclick="kdDriver()">Create KD Rectangles</a>
+    <a class="button is-light" id="tog1" onclick="kdDriver()">KD Rectangles Recursed On</a>
+    <a class="button is-light" id="tog2" onclick="kdDriver2()">All KD Rectangles</a>
     <a class="button is-light" onclick="randomizePoints()">Randomize Points</a>
-    <!-- <a class="button is-light" onclick="clearSVG()">Clear Demo</a> -->
     <br />
     <br />
   </div>
