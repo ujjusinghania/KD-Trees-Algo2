@@ -37,10 +37,10 @@
     <br/>
     <br/>
   <p class="is-size-4">Range Counting:</p>
-  <p>Count or list the data points in a given range query</p>
+  <p>Count or list the data points in a given range query.</p>
   <br/>
   <p class="is-size-5">1D range counting:</p>
-  <p>Trivially use an augmented BST, storing the size of each subtree at each node.</p>
+  <p>We can use an augmented BST and store the size of each subtree at each node.</p>
   <br/>
 
   <p class="is-size-5">2D range counting:</p>
@@ -70,11 +70,8 @@
 
   <p>We can use this to form a recurrence for the work we will have to do to solve our range query:</p>
 
-  <p><b>S(n) <= S(n/4) + O(1)</b></p>
+  <p><b>S(n) <= 2S(n/4) + O(1) = O(sqrt(n))</b></p>
   <br/>
-
-  <p>We can use the master method to solve this recurrence, showing that the leaf level dominates, and we can solve a 2d
-    range counting problem in <b>O(sqrt(n))</br> time.</p>
     </div>
 
 </body>
