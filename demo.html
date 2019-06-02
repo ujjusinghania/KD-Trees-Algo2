@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>kd Trees Demo</title>
+  <script src="https://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+  <script type="text/javascript" src="drawPoints.js"></script>
+  <link type="text/css" rel="stylesheet" href="css/bulma.css" media="screen,projection" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+</head>
+
+<body>
+
+  <nav class="navbar has-shadow" role="navigation" aria-label="main navigation">
+    <div class="navbar-brand">
+
+      <a role="button" class="navbar-burger burger" aria-label="menu" aria-expanded="false"
+        data-target="navbarBasicExample">
+        <span aria-hidden="true"></span>
+        <span aria-hidden="true"></span>
+        <span aria-hidden="true"></span>
+      </a>
+    </div>
+
+    <div id="navbarBasicExample" class="navbar-menu">
+      <div class="navbar-start">
+        <a class="navbar-item" href="index.html">
+          Home
+        </a>
+
+        <a class="navbar-item" href="demo.html">
+          Demo
+        </a>
+      </div>
+    </div>
+  </nav>
+
+<section class="hero is-light">
+    <div class="hero-body">
+      <div class="container">
+        <h1 class="title">
+          Instructions
+        </h1>
+        <h2>
+          <li>
+            Draw the points - click the mouse button anywhere inside the rectangle or press "Randomize Points".
+          </li>
+          <li>
+            Drag and draw the rectangle for the selection area.
+          </li>
+          <li>
+            Press the "Create KD Rectangles" button to see the visualization.
+          </li>
+        </h2>
+      </div>
+    </div>
+  </section>
+  <br />
+  <div align="center">
+    <p id="answerText">
+    </p>
+  </div>
+  <br />
+  <script id="hello" src="drawPoints.js"></script>
+  <br></br>
+  <div align="center">
+    <a class="button is-light" id="tog1" onclick="kdDriver()">KD Rectangles Recursed On</a>
+    <a class="button is-light" id="tog2" onclick="kdDriver2()">All KD Rectangles</a>
+    <a class="button is-light" id="tog3" onclick="randomizePoints()">Randomize Points</a>
+    <br />
+    <br />
+  </div>
+
+</body>
+
+</html>
