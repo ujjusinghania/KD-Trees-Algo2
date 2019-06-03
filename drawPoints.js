@@ -348,8 +348,8 @@ function drawBoundary(x1, y1, x2, y2) {
 }
 
 function randomizePoints() {
-	if(!disButtons) {
-	 for (var i = 0; i < 42; i++) {
+	if(!disButtons&&ptnum<2000) {
+	 for (var i = 0; i < 40; i++) {
 	    var pt = { x: Math.floor(Math.random() * Math.floor(w)), y: Math.floor(Math.random() * Math.floor(h)) };
 	    dataset.push(pt);
 	    ptnum += 1;
